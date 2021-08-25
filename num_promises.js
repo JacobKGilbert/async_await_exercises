@@ -2,21 +2,27 @@ const BASE_URL = 'http://numbersapi.com'
 const ul = document.querySelector('ul')
 const ol = document.querySelector('ol')
 const body = document.querySelector('body')
+const favNum = 7
 
 // Single Promise
-axios
-  .get(`${BASE_URL}/7/trivia?json`)
-  .then(res => {
+async function getTrivia(num) {
+  try {
+    res = await axios.get(`${BASE_URL}/${num}/trivia?json`)
+
     const li = document.createElement('li')
     li.innerText = res.data.text
     ul.appendChild(li)
-  })
-  .catch(err => console.log(err))
+  } 
+  catch (err) {
+    console.log(err)
+  }
+}
 
 // Batch Promise
-axios
-  .get(`${BASE_URL}/1..7/trivia?json`)
-  .then(res => {
+async function getBatchTrivia() {
+  try {
+    res = await axios.get(`${BASE_URL}/1..7/trivia?json`)
+
     for (const num in res.data) {
       if (Object.hasOwnProperty.call(res.data, num)) {
         const numFacts = res.data[num];
@@ -26,20 +32,33 @@ axios
         ol.appendChild(li)
       }
     }
-  })
-  .catch((err) => console.log(err))
-
-// Promise all 
-let fourNumberPromises = []
-
-for (let i = 0; i < 4; i++) {
-  fourNumberPromises.push(axios.get(`${BASE_URL}/7/trivia?json`))
+  } 
+  catch (err) {
+    console.log(err)
+  }
 }
 
-Promise.all(fourNumberPromises)
-  .then(numberArr => numberArr.forEach(num => {
-    const p = document.createElement('p')
-    p.innerText = num.data.text
-    body.appendChild(p)
-  }))
-  .catch((err) => console.log(err))
+// Promise all
+async function getFourTriviaWithPromiseAll(num) {
+  try {
+    let numberArr = await Promise.all([
+      axios.get(`${BASE_URL}/${num}/trivia?json`),
+      axios.get(`${BASE_URL}/${num}/trivia?json`),
+      axios.get(`${BASE_URL}/${num}/trivia?json`),
+      axios.get(`${BASE_URL}/${num}/trivia?json`),
+    ])
+
+    numberArr.forEach(num => {
+      const p = document.createElement('p')
+      p.innerText = num.data.text
+      body.appendChild(p)
+    })
+  } 
+  catch (error) {
+    console.log(err)
+  }
+}
+
+getTrivia(favNum)
+getBatchTrivia()
+getFourTriviaWithPromiseAll(favNum)
